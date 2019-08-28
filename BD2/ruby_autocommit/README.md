@@ -1,5 +1,5 @@
-Esse trabalho mosta exemplo de transações (commit e rollback) feitas a partir de um programa escrito em rubby.
-*a linguagem selecionada para implementação (ruby) foi sorteada pelo professor*
+Esse trabalho mosta exemplo de transações (commit e rollback) feitas a partir de um programa escrito em rubby.<br />
+*A linguagem selecionada para implementação (ruby) foi sorteada pelo professor*
 __________________________________
 [1. Setup do postgres, ruby e bibliotecas](#1-setup-do-postgres-ruby-e-bibliotecas-para-compilar)<br />
 [2. Compilando e rodando o código](#2-compilando-e-rodando-o-c%C3%B3digo)<br />
