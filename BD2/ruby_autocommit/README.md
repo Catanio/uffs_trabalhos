@@ -7,7 +7,7 @@ obs: puns intended
 #### Sumário:
 __________________________________
 [1. Setup do postgres, ruby e bibliotecas](#1-setup-do-postgres-ruby-e-bibliotecas-para-compilar)<br />
-[2. Código: compilação e estrutura](#2-Código:-compilação-e-estrutura)<br />
+[2. Código: compilação e estrutura](#2-c%C3%B3digo-compila%C3%A7%C3%A3o-e-estrutura)<br />
 [3. Problemas encontrados](#3-problemas-encontrados)<br />
 [4. Referências](#4-referencias)<br />
 [5. Futuras implementações](#5-futuras-implementações)
