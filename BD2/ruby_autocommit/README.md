@@ -1,8 +1,13 @@
-Esse trabalho mosta exemplo de transações (commit e rollback) feitas a partir de um programa escrito em rubby.<br />
-*A linguagem selecionada para implementação (ruby) foi sorteada pelo professor*
+#### Descrição do trabalho:
+
+Esse trabalho mosta um exemplo de transações (commit e rollback) feitas a partir de um programa escrito em ruby.<br />
+*A linguagem selecionada para implementação (ruby) foi sorteada pelo professor, sendo que eu não conhecia antes*<br />
+obs: puns intended
+
+#### Sumário:
 __________________________________
 [1. Setup do postgres, ruby e bibliotecas](#1-setup-do-postgres-ruby-e-bibliotecas-para-compilar)<br />
-[2. Compilando e rodando o código](#2-compilando-e-rodando-o-c%C3%B3digo)<br />
+[2. Código: compilação e estrutura](#2-Código:-compilação-e-estrutura)<br />
 [3. Problemas encontrados](#3-problemas-encontrados)<br />
 [4. Referências](#4-referencias)<br />
 [5. Futuras implementações](#5-futuras-implementações)
@@ -42,7 +47,7 @@ postgres=# ALTER USER ruby WITH password 'saphire';
 sudo -u postgres cristal-gem testdb --owner ruby
 ```
 ___________________
-#### 2. Compilando e rodando o código
+#### 2. Código: compilação e estrutura
 Para compilar os arquivos em ruby, acessar o terminal e digitar
 ```
 ruby <arquivo>.rb
@@ -53,7 +58,7 @@ ruby create.rb
 ruby insert.rb
 ```
 O arquivo _create.rb_ cria a tabela e o trigger que filtra as inserções<br />
-O arquivo _insert.rb_ serve pra inserir novas tuplas de modo consecutivo à tabela
+O arquivo _insert.rb_ serve pra inserir novas tuplas (quantidade informada pelo usuário) encapsuladas em uma transação.
 ___________________
 #### 3. Problemas encontrados:
 
