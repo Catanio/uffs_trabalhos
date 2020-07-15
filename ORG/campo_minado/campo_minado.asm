@@ -1,3 +1,26 @@
+.data
+mine_field:	.space	324
+
+
+.text
+################
+# debug purposes
+main:
+	la	$a0, mine_field
+	la	$a1, 8
+	la	$a2, 0
+	la	$a3, 1
+	jal	get_element_adress
+	move	$a0, $v0
+	jal	is_bomb
+	
+	# finish the execution
+	li	$v0, 10	
+	syscall
+# end debuging
+#################
+
+
 #################################
 ##	calculate the adress of a certain position inside a square matrix
 #
@@ -9,7 +32,7 @@ get_element_adress:
 	blt	$a3, 0, seg_fault		#
 	bge	$a3, $a1, seg_fault		# }
 
-	mul	$t1, $a2, $a3 		# t1 = ((x*y) + x) * 4Bytes
+	mul	$t1, $a1, $a3 		# t1 = ((x_max * a_y) + a_x) * 4Bytes
 	add	$t1, $t1, $a2		#
 	mul	$t1, $t1, 4 		# 
 	add	$v0, $t1, $a0		# return = (t1 + original adress)
@@ -30,8 +53,8 @@ is_bomb:
 	sw	$ra, 0($sp)
 	
 	beq	$a0, -1, end_ib_func # jumps to end if has a invalid adress
-	lw	$v0, 0($v0)
-	seq	$v0, $v0, 9	# if it has a bomb, returns TRUE
+	lw	$t1, 0($a0)
+	seq	$v0, $t1, 9	# if it has a bomb, returns TRUE
 
 	end_ib_func:
 	lw	$ra, 0($sp)

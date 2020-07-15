@@ -19,13 +19,13 @@ Por especificação do trabalho, deve conter as seguintes funções:
 Ao final do da função, são desempilhados aos seus valores originais
 
 
-#### get_adress:
+#### get_element_adress:
     Calcula o endereço de uma matriz dado o índice
     a0: índice da matriz
     a1: ordem da matriz
     a2: valor em x
     a3: valor y
     v0: retorna o endereço na posição desejada ( -1 se for um endereço inválido)
-    v1: flag de erro; se endereço invalido retorna 1
+    v1: flag de erro: se endereço invalido retorna 1
 
-    Operação: ```((x*y) + x) * 4Bytes + endereço original```
+    Operação: ```((ordem_da_matriz * y) + x) * 4Bytes + endereço original```
