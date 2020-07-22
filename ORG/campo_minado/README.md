@@ -18,6 +18,18 @@ Por especificação do trabalho, deve conter as seguintes funções:
 * Antes de iniciar uma função os registradores utilizados (que não os temporários) são empilhados e apontados pelo $sp.
 Ao final do da função, são desempilhados aos seus valores originais
 
+#### calc_cell_adjacent_mine_quantity
+  retorna o número de bombas nas celulas vizinhas
+  depois de checar se celula referência é uma bomba, lê percorre na seguinte ordem
+
+  x x x      6 7 8
+  x & x  =>  5 & 1
+  x x x      4 3 2
+  
+  onde ```& = endereço da célula-referência``` e ```x = celula adjacente verificadap ela is_bomb```
+
+    os endereços fora do campo são ignorados pela função get_element_adress
+    Cada bomba encontrada em _x_ adiciona um ao count (registrador $s4)
 
 #### get_element_adress:
     Calcula o endereço de uma matriz dado o índice
@@ -29,3 +41,4 @@ Ao final do da função, são desempilhados aos seus valores originais
     v1: flag de erro: se endereço invalido retorna 1
 
     Operação: ```((ordem_da_matriz * y) + x) * 4Bytes + endereço original```
+
