@@ -8,8 +8,6 @@ mine_field:	.space	324
 main:
 	la	$a0, mine_field
 	la	$a1, 8
-	la	$a2, 1
-	la	$a3, 1
 	jal	sweep_field
 	
 	# finish the execution
@@ -20,7 +18,7 @@ main:
 
 #################################
 ## 	nested for loops to run through a given square matrix
-#	in this case, it calls calc_adjacent_bombs function for each position
+#	in this case, it calls adjacent_cells_increment function for each bomb found
 #
 #	@param $a0 *mine_field, $a1 = matrix_order
 sweep_field:
@@ -37,7 +35,6 @@ sweep_field:
 
 	li	$s3, 0		# s3 = y = 0
 	loop_y:
-
 		li	$s2, 0		# s2 = x = 0
 		loop_x:
 			# set arguments for function call
@@ -45,16 +42,19 @@ sweep_field:
 			move	$a1, $s1
 			move	$a2, $s2
 			move	$a3, $s3
-			jal calc_adjacent_bombs
+			
+			jal	get_element_address
+			lw	$t1, 0($v0)
+			bne $t1, 9, sf_continue
+			jal adjacent_cells_increment
 
 			################ debug purpose ##############
 			# jal get_element_address
 			# beq $v0, -1, continue
 			# li $t1, 1
 			# sw $t1, 0($v0)
-			# continue:
 			##########################################
-
+			sf_continue:
 			addi	$s2, $s2, 1		# x++
 			blt	$s2, $s1, loop_x	# if (x < matrix_order) loop_x 
 		addi	$s3, $s3, 1		# y++
@@ -69,11 +69,10 @@ sweep_field:
 	addi	$sp, $sp, 20
 	jr	$ra	
 ##################################
-##	Calculates the quantity of adjacent bombs to the current cell
+##	adds 1 to the cells adjacent to found bomb
 #
 #	@param $a0 = *mine_field , $a1 =  matrix_order, $a2 = cell_coordinate_x , $a3 = cell_coordinate_y;
-#	@return $v0 = number of adjacent bombs
-calc_adjacent_bombs:
+adjacent_cells_increment:
 	addi	$sp, $sp, -24
 	sw	$ra, 0($sp)
 	sw	$s0, 4($sp)
@@ -87,12 +86,6 @@ calc_adjacent_bombs:
 	move	$s1, $a1	# s1 = matrix order
 	move	$s2, $a2	# s2 = x coordinate
 	move	$s3, $a3	# s3 = y coordinate
-	li	$s4, 0		# s4 = count (for return), begins in 0
-
-		# if the current cell is a bomb, jumps to the function's end with return = 9 (bomb)
-	jal	get_element_address
-	lw	$v0, 0($v0)
-	beq	$v0, 9, end_adj_calc
 
 		# adjacent cells "circular" iteration
 	addi	$s2, $s2, 1		#x++
@@ -111,9 +104,7 @@ calc_adjacent_bombs:
 	jal	adjacent_bombs_subroutine	
 	addi	$s2, $s2, 1		#x++
 	jal	adjacent_bombs_subroutine
-	move	$v0, $s4	 # return count (if's not a bomb-containing cell)
 
-	end_adj_calc:
 	lw	$ra, 0($sp)
 	lw	$s0, 4($sp)
 	lw	$s1, 8($sp)
@@ -124,7 +115,7 @@ calc_adjacent_bombs:
 	jr	$ra
 
 	###################
-	# calc_adjacent_bombs subroutine
+	# adjacent_cells_increment subroutine
 	# move iterator position to arguments and adds up counter
 	adjacent_bombs_subroutine:
 		addi	$sp, $sp, -4
@@ -134,15 +125,18 @@ calc_adjacent_bombs:
 		move	$a1, $s1
 		move	$a2, $s2
 		move	$a3, $s3
+
 		jal	get_element_address
-		move	$a0, $v0
-		jal is_bomb
-		add	$s4, $s4, $v0	# if has bomb, count++
+		beq	$v0, -1, abs_continue # continue if invalid adress
+		lw	$t1, 0($v0)
+		beq	$t1, 9, abs_continue # continue if is bomb
+		add	$t1, $t1, 1
+		sw	$t1, 0($v0)
 		
+		abs_continue:
 		lw	$ra, 0($sp)
 		addi	$sp, $sp, 4
 		jr	$ra
-		
 
 #################################
 ##	calculate the address of a certain position (cell) inside a square matrix
@@ -165,22 +159,3 @@ get_element_address:
 		li	$v0, -1
 		li	$v1, 1
 		jr	$ra
-
-#################################
-##	Check if a given address has a bomb
-#
-#	@param $a0 &address
-#	@return $v0 = 1 if &address possition has a bomb
-is_bomb:
-	addi	$sp, $sp, -4
-	sw	$ra, 0($sp)
-	
-	li	$v0, 0
-	beq	$a0, -1, end_ib_func # jumps to end if has a invalid address
-	lw	$t1, 0($a0)
-	seq	$v0, $t1, 9	# if it has a bomb, returns TRUE
-
-	end_ib_func:
-	lw	$ra, 0($sp)
-	addi	$sp, $sp, 4
-	jr	$ra

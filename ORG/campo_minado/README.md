@@ -25,7 +25,7 @@ Ao final do da função, são desempilhados aos seus valores originais
   x x x      6 7 8
   x & x  =>  5 & 1
   x x x      4 3 2
- ```
+```
   onde ```& = endereço da célula-referência``` e ```x = celula adjacente verificadap ela is_bomb```
 
     os endereços fora do campo são ignorados pela função get_element_adress
