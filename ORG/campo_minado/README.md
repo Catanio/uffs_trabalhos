@@ -21,11 +21,11 @@ Ao final do da função, são desempilhados aos seus valores originais
 #### calc_adjacent_bombs
   retorna em _$v0_ o número de bombas nas celulas vizinhas
   depois de checar se celula referência é uma bomba, lê percorre na seguinte ordem
-
+```
   x x x      6 7 8
   x & x  =>  5 & 1
   x x x      4 3 2
-  
+```
   onde ```& = endereço da célula-referência``` e ```x = celula adjacente verificadap ela is_bomb```
 
     os endereços fora do campo são ignorados pela função get_element_adress
