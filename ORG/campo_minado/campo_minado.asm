@@ -10,7 +10,7 @@ main:
 	la	$a1, 8
 	la	$a2, 1
 	la	$a3, 1
-	jal	calc_cell_adjacent_mine_quantity
+	jal	sweep_field
 	
 	# finish the execution
 	li	$v0, 10	
@@ -18,12 +18,62 @@ main:
 # end debuging
 #################
 
-##################################
-##	Calculates the quantity of adjacent bombs to the current cel
+#################################
+## 	nested for loops to run through a given square matrix
+#	in this case, it calls calc_adjacent_bombs function for each position
 #
-#	@param $a0 = *mine_field , $a1 =  matrix_order(int), $a2 = cell_coordinate_x , $a3 = cell_coordinate_y;
+#	@param $a0 *mine_field, $a1 = matrix_order
+sweep_field:
+	addi	$sp, $sp, -20
+	sw	$ra, 0($sp)
+	sw	$s0, 4($sp)	
+	sw	$s1, 4($sp)
+	sw	$s2, 8($sp)
+	sw	$s3, 12($sp)
+	sw	$s4, 16($sp)
+	
+	move	$s0, $a0	# s0 = *mine_field
+	move	$s1, $a1	# s1 = matrix_order
+
+	li	$s3, 0		# s3 = y = 0
+	loop_y:
+
+		li	$s2, 0		# s2 = x = 0
+		loop_x:
+			# set arguments for function call
+			move	$a0, $s0
+			move	$a1, $s1
+			move	$a2, $s2
+			move	$a3, $s3
+			jal calc_adjacent_bombs
+
+			################ debug purpose ##############
+			# jal get_element_address
+			# beq $v0, -1, continue
+			# li $t1, 1
+			# sw $t1, 0($v0)
+			# continue:
+			##########################################
+
+			addi	$s2, $s2, 1		# x++
+			blt	$s2, $s1, loop_x	# if (x < matrix_order) loop_x 
+		addi	$s3, $s3, 1		# y++
+		blt	$s3, $s1, loop_y	# if (y < matrix_order) loop_y 
+
+	lw	$ra, 0($sp)
+	lw	$s0, 4($sp)
+	lw	$s1, 4($sp)
+	lw	$s2, 8($sp)
+	lw	$s3, 12($sp)
+	lw	$s4, 16($sp)
+	addi	$sp, $sp, 20
+	jr	$ra	
+##################################
+##	Calculates the quantity of adjacent bombs to the current cell
+#
+#	@param $a0 = *mine_field , $a1 =  matrix_order, $a2 = cell_coordinate_x , $a3 = cell_coordinate_y;
 #	@return $v0 = number of adjacent bombs
-calc_cell_adjacent_mine_quantity:
+calc_adjacent_bombs:
 	addi	$sp, $sp, -24
 	sw	$ra, 0($sp)
 	sw	$s0, 4($sp)
@@ -44,6 +94,7 @@ calc_cell_adjacent_mine_quantity:
 	lw	$v0, 0($v0)
 	beq	$v0, 9, end_adj_calc
 
+		# adjacent cells "circular" iteration
 	addi	$s2, $s2, 1		#x++
 	jal	adjacent_bombs_subroutine
 	addi	$s3, $s3, -1		#y--
@@ -73,7 +124,7 @@ calc_cell_adjacent_mine_quantity:
 	jr	$ra
 
 	###################
-	# calc_cell_adjacent_mine_quantity subroutine
+	# calc_adjacent_bombs subroutine
 	# move iterator position to arguments and adds up counter
 	adjacent_bombs_subroutine:
 		addi	$sp, $sp, -4
@@ -118,7 +169,7 @@ get_element_address:
 #################################
 ##	Check if a given address has a bomb
 #
-#	@param $a0 &address (int)
+#	@param $a0 &address
 #	@return $v0 = 1 if &address possition has a bomb
 is_bomb:
 	addi	$sp, $sp, -4
