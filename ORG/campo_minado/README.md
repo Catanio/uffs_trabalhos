@@ -18,18 +18,25 @@ Por especificação do trabalho, deve conter as seguintes funções:
 * Antes de iniciar uma função os registradores utilizados (que não os temporários) são empilhados e apontados pelo $sp.
 Ao final do da função, são desempilhados aos seus valores originais
 
+#### draw_field
+  varre o vetor do campo minado do seguinte modo:
+  ```
+  for (y = matrix_order; y >= 0; y--) 
+    for (x = 0; x < matrix_order; x++)
+  ```
+  as células na memória são divididas em meia-palavra (half-word). A parte baixa é ondee fica o valor da celula e a parte alta se ela é uma celula já visitada ou não.
+
 #### calc_adjacent_bombs
-  retorna em _$v0_ o número de bombas nas celulas vizinhas
-  depois de checar se celula referência é uma bomba, lê percorre na seguinte ordem
+  quando encontra uma bomba, visita as celulas adjacentes e adiciona um ao valor delas (exceto se bomba)
+  é feito na seguinte ordem:
 ```
   x x x      6 7 8
   x & x  =>  5 & 1
   x x x      4 3 2
 ```
-  onde ```& = endereço da célula-referência``` e ```x = celula adjacente verificadap ela is_bomb```
+  onde ```& = endereço da célula-referência``` e ```x = celulas adjacentes```
 
     os endereços fora do campo são ignorados pela função get_element_adress
-    Cada bomba encontrada em _x_ adiciona um ao count (registrador $s4)
 
 #### get_element_adress:
     Calcula o endereço de uma matriz dado o índice

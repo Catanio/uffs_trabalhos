@@ -1,5 +1,10 @@
 .data
 mine_field:	.space	324
+blank_cell:	.asciiz "_"
+bomb_cell:	.asciiz "*"
+hidden_cell:	.asciiz "."
+line_break: "\n"
+
 
 
 .text
@@ -7,8 +12,8 @@ mine_field:	.space	324
 # debug purposes
 main:
 	la	$a0, mine_field
-	la	$a1, 8
-	jal	sweep_field
+	li	$a1, 3
+	jal	draw_field
 	
 	# finish the execution
 	li	$v0, 10	
@@ -19,6 +24,7 @@ main:
 #################################
 ## 	nested for loops to run through a given square matrix
 #	in this case, it calls adjacent_cells_increment function for each bomb found
+# 	!unused $s4 register
 #
 #	@param $a0 *mine_field, $a1 = matrix_order
 sweep_field:
@@ -34,9 +40,9 @@ sweep_field:
 	move	$s1, $a1	# s1 = matrix_order
 
 	li	$s3, 0		# s3 = y = 0
-	loop_y:
+	sf_loop_y:
 		li	$s2, 0		# s2 = x = 0
-		loop_x:
+		sf_loop_x:
 			# set arguments for function call
 			move	$a0, $s0
 			move	$a1, $s1
@@ -48,17 +54,11 @@ sweep_field:
 			bne $t1, 9, sf_continue
 			jal adjacent_cells_increment
 
-			################ debug purpose ##############
-			# jal get_element_address
-			# beq $v0, -1, continue
-			# li $t1, 1
-			# sw $t1, 0($v0)
-			##########################################
 			sf_continue:
 			addi	$s2, $s2, 1		# x++
-			blt	$s2, $s1, loop_x	# if (x < matrix_order) loop_x 
+			blt	$s2, $s1, sf_loop_x	# if (x < matrix_order) loop_x 
 		addi	$s3, $s3, 1		# y++
-		blt	$s3, $s1, loop_y	# if (y < matrix_order) loop_y 
+		blt	$s3, $s1, sf_loop_y	# if (y < matrix_order) loop_y 
 
 	lw	$ra, 0($sp)
 	lw	$s0, 4($sp)
@@ -70,6 +70,7 @@ sweep_field:
 	jr	$ra	
 ##################################
 ##	adds 1 to the cells adjacent to found bomb
+#	! unused $s4 register
 #
 #	@param $a0 = *mine_field , $a1 =  matrix_order, $a2 = cell_coordinate_x , $a3 = cell_coordinate_y;
 adjacent_cells_increment:
@@ -159,3 +160,92 @@ get_element_address:
 		li	$v0, -1
 		li	$v1, 1
 		jr	$ra
+
+###################################
+## function that iterates over the field matrix and print it
+# visited cells have upper half-word value setted 1
+#
+# @params $a0 = *mine_field, $a1 = matrix_order
+draw_field:
+	addi	$sp, $sp, -24
+	sw	$ra, 0($sp)
+	sw	$s0, 4($sp)
+	sw	$s1, 8($sp)
+	sw	$s2, 12($sp)
+	sw	$s3, 16($sp)
+	sw	$s4, 20($sp)
+	
+	move	$s0, $a0	# s0 = *mine_field
+	move	$s1, $a1	# s1 = matrix_order
+
+	addi	$s3, $a1, -1		# s3 = y = matrix_order - 1
+	pf_loop_y:
+		li	$s2, 0		# s2 = x = 0
+		pf_loop_x:
+			move	$a0, $s0
+			move	$a1, $s1
+			move	$a2, $s2
+			move	$a3, $s3
+			jal get_element_address
+			lh	$s4, 0($v0)
+			lh	$t1, 2($v0)
+			beq $t1, 1, print_cell_content
+
+				## default action is to print a hidden cell
+				jal print_hidden
+				j	pf_continue
+
+				## or then, print cell
+				## I can't think an optmized way to print spaces OR the number.
+				print_cell_content:
+				bnez	$s4, print_number
+
+				jal	print_space
+				j pf_continue
+
+				print_number:
+				move	$a0, $s4
+				li	$v0, 1
+				syscall
+				
+
+			pf_continue:
+			addi	$s2, $s2, 1		# x++
+			blt	$s2, $s1, pf_loop_x	# if (x < matrix_order) loop_x
+			jal print_new_line
+		addi	$s3, $s3, -1		# y--
+		bgez	$s3, pf_loop_y	# if (y >= matrix_order) loop_y 
+
+	lw	$ra, 0($sp)
+	lw	$s0, 4($sp)
+	lw	$s1, 8($sp)
+	lw	$s2, 12($sp)
+	lw	$s3, 16($sp)
+	lw	$s4, 20($sp)
+	addi	$sp, $sp, 24
+	jr	$ra
+##########################
+## calls for printing special characteres
+print_new_line:
+	la	$a0, line_break
+	li	$v0, 4
+	syscall
+	jr $ra
+
+print_space:
+	la	$a0, blank_cell
+	li	$v0, 4
+	syscall
+	jr $ra
+
+print_bomb:
+	la	$a0, bomb_cell
+	li	$v0, 4
+	syscall
+	jr $ra
+
+print_hidden:
+	la	$a0, hidden_cell
+	li	$v0, 4
+	syscall
+	jr $ra
